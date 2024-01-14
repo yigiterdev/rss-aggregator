@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -8,9 +8,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/yigiterdev/rss-aggregator/internal/database"
+	"github.com/yigiterdev/rss-aggregator/models"
 )
 
-func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
+func (apiCfg *ApiConfig) HandlerCreateFeed(w http.ResponseWriter, r *http.Request, user database.User) {
 	type parameters struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
@@ -37,14 +38,14 @@ func (apiCfg *apiConfig) handlerCreateFeed(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	respondWithJSON(w, 201, databaseFeedToFeed(feed))
+	respondWithJSON(w, 201, models.DatabaseFeedToFeed(feed))
 }
 
-func (apiCfg *apiConfig) handlerGetFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
+func (apiCfg *ApiConfig) HandlerGetFeeds(w http.ResponseWriter, r *http.Request, user database.User) {
 	feeds, err := apiCfg.DB.GetFeeds(r.Context(), user.ID)
 	if err != nil {
 		respondWithError(w, 400, fmt.Sprintf("Cannot get feeds: %v", err))
 		return
 	}
-	respondWithJSON(w, 200, databaseFeedsToFeeds(feeds))
+	respondWithJSON(w, 200, models.DatabaseFeedsToFeeds(feeds))
 }

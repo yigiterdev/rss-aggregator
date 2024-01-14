@@ -9,12 +9,13 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	"github.com/yigiterdev/rss-aggregator/handlers"
 	"github.com/yigiterdev/rss-aggregator/internal/database"
 
 	_ "github.com/lib/pq"
 )
 
-type apiConfig struct {
+type ApiConfig struct {
 	DB *database.Queries
 }
 
@@ -37,7 +38,7 @@ func main() {
 	}
 	dbQueries := database.New(db)
 
-	apiCfg := apiConfig{
+	apiCfg := handlers.ApiConfig{
 		DB: dbQueries,
 	}
 
@@ -54,13 +55,13 @@ func main() {
 
 	v1Router := chi.NewRouter()
 
-	v1Router.Post("/users", apiCfg.handlerCreateUser)
-	v1Router.Get("/users", apiCfg.middlewareAuth(apiCfg.handlerGetUser))
-	v1Router.Post("/feeds", apiCfg.middlewareAuth(apiCfg.handlerCreateFeed))
-	v1Router.Get("/feeds", apiCfg.middlewareAuth(apiCfg.handlerGetFeeds))
+	v1Router.Post("/users", apiCfg.HandlerCreateUser)
+	v1Router.Get("/users", apiCfg.MiddlewareAuth(apiCfg.HandlerGetUser))
+	v1Router.Post("/feeds", apiCfg.MiddlewareAuth(apiCfg.HandlerCreateFeed))
+	v1Router.Get("/feeds", apiCfg.MiddlewareAuth(apiCfg.HandlerGetFeeds))
 
-	v1Router.Get("/healthz", handlerReadiness)
-	v1Router.Get("/err", handleErr)
+	v1Router.Get("/healthz", handlers.HandlerReadiness)
+	v1Router.Get("/err", handlers.HandleErr)
 
 	router.Mount("/v1", v1Router)
 	srv := &http.Server{

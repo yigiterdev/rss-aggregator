@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	"time"
@@ -24,7 +24,7 @@ type Feed struct {
 	UserID    uuid.UUID `json:"user_id"`
 }
 
-func databaseUserToUser(dbUser database.User) User {
+func DatabaseUserToUser(dbUser database.User) User {
 	return User{
 		ID:        dbUser.ID,
 		CreatedAt: dbUser.CreatedAt,
@@ -34,7 +34,7 @@ func databaseUserToUser(dbUser database.User) User {
 	}
 }
 
-func databaseFeedToFeed(dbFeed database.Feed) Feed {
+func DatabaseFeedToFeed(dbFeed database.Feed) Feed {
 	return Feed{
 		ID:        dbFeed.ID,
 		CreatedAt: dbFeed.CreatedAt,
@@ -45,10 +45,10 @@ func databaseFeedToFeed(dbFeed database.Feed) Feed {
 	}
 }
 
-func databaseFeedsToFeeds(dbFeeds []database.Feed) []Feed {
+func DatabaseFeedsToFeeds(dbFeeds []database.Feed) []Feed {
 	feeds := make([]Feed, len(dbFeeds))
 	for i, dbFeed := range dbFeeds {
-		feeds[i] = databaseFeedToFeed(dbFeed)
+		feeds[i] = DatabaseFeedToFeed(dbFeed)
 	}
 	return feeds
 }

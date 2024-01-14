@@ -1,4 +1,4 @@
-package main
+package handlers
 
 import (
 	"encoding/json"
@@ -8,9 +8,10 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/yigiterdev/rss-aggregator/internal/database"
+	"github.com/yigiterdev/rss-aggregator/models"
 )
 
-func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Request) {
+func (apiCfg *ApiConfig) HandlerCreateUser(w http.ResponseWriter, r *http.Request) {
 	type parameters struct {
 		Name string `json:"name"`
 	}
@@ -34,9 +35,9 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	respondWithJSON(w, 200, databaseUserToUser(newUser))
+	respondWithJSON(w, 200, models.DatabaseUserToUser(newUser))
 }
 
-func (apiCfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
-	respondWithJSON(w, 200, databaseUserToUser(user))
+func (apiCfg *ApiConfig) HandlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	respondWithJSON(w, 200, models.DatabaseUserToUser(user))
 }
