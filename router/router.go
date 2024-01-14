@@ -4,10 +4,12 @@ import (
 	"database/sql"
 	"log"
 	"os"
+	"time"
 
 	"github.com/go-chi/chi"
 	"github.com/yigiterdev/rss-aggregator/handlers"
 	"github.com/yigiterdev/rss-aggregator/internal/database"
+	"github.com/yigiterdev/rss-aggregator/scraper"
 )
 
 func GetRouter() *chi.Mux {
@@ -26,6 +28,7 @@ func GetRouter() *chi.Mux {
 		DB: dbQueries,
 	}
 
+	go scraper.StartScraping(dbQueries, 10, time.Minute)
 	V1Router := chi.NewRouter()
 
 	V1Router.Post("/users", apiCfg.HandlerCreateUser)
@@ -35,6 +38,7 @@ func GetRouter() *chi.Mux {
 	V1Router.Post("/feed-follows", apiCfg.MiddlewareAuth(apiCfg.HandlerCreateFeedFollow))
 	V1Router.Get("/feed-follows", apiCfg.MiddlewareAuth(apiCfg.HandlerGetFeedFollows))
 	V1Router.Delete("/feed-follows/{feedFollowID}", apiCfg.MiddlewareAuth(apiCfg.HandlerDeleteFeedFollow))
+	V1Router.Get("/posts", apiCfg.MiddlewareAuth(apiCfg.HandlerGetPosts))
 
 	V1Router.Get("/healthz", handlers.HandlerReadiness)
 	V1Router.Get("/err", handlers.HandleErr)
