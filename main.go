@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 	"os"
@@ -9,8 +8,8 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
-	"github.com/yigiterdev/rss-aggregator/handlers"
 	"github.com/yigiterdev/rss-aggregator/internal/database"
+	V1Router "github.com/yigiterdev/rss-aggregator/router"
 
 	_ "github.com/lib/pq"
 )
@@ -27,21 +26,6 @@ func main() {
 		log.Fatal("PORT environment variable is not set")
 	}
 
-	dbURL := os.Getenv("DB_URL")
-	if dbURL == "" {
-		log.Fatal("DATABASE_URL environment variable is not set")
-	}
-
-	db, err := sql.Open("postgres", dbURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-	dbQueries := database.New(db)
-
-	apiCfg := handlers.ApiConfig{
-		DB: dbQueries,
-	}
-
 	router := chi.NewRouter()
 
 	router.Use(cors.Handler(cors.Options{
@@ -53,17 +37,7 @@ func main() {
 		MaxAge:           300,
 	}))
 
-	v1Router := chi.NewRouter()
-
-	v1Router.Post("/users", apiCfg.HandlerCreateUser)
-	v1Router.Get("/users", apiCfg.MiddlewareAuth(apiCfg.HandlerGetUser))
-	v1Router.Post("/feeds", apiCfg.MiddlewareAuth(apiCfg.HandlerCreateFeed))
-	v1Router.Get("/feeds", apiCfg.MiddlewareAuth(apiCfg.HandlerGetFeeds))
-
-	v1Router.Get("/healthz", handlers.HandlerReadiness)
-	v1Router.Get("/err", handlers.HandleErr)
-
-	router.Mount("/v1", v1Router)
+	router.Mount("/v1", V1Router.GetRouter())
 	srv := &http.Server{
 		Addr:    ":" + port,
 		Handler: router,
